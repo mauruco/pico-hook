@@ -14,6 +14,17 @@ def get_gyro():
     gz=imu.gyro.z
     return gx, gy, gz
 
+def get_gyro_data(offsets):
+    ax=-imu.accel.x
+    ay=-imu.accel.z
+    az=imu.accel.y
+
+    pitch = -(imu.gyro.x - offsets[0])
+    roll = imu.gyro.y - offsets[1]
+    yaw = -(imu.gyro.z - offsets[2])
+
+    return {'ax': ax, 'ay': ay, 'az': az, 'pitch': pitch, 'roll': roll, 'yaw': yaw}
+
 def gyro_calibration(calibration_time=10):
     print('Beginning Gyro Calibration - Do not move the MPU6050')
     # placeholder for the average of tuples in mpu_gyro_array
@@ -39,14 +50,16 @@ def gyro_calibration(calibration_time=10):
     offsets = [i/num_of_points for i in offsets] # we divide by the length to get the mean
     return offsets
 
-
-def get_gyro_data(offsets):
-    ax=-imu.accel.x
-    ay=-imu.accel.z
-    az=imu.accel.y
-
-    pitch = -(imu.gyro.x - offsets[0])
-    roll = imu.gyro.y - offsets[1]
-    yaw = -(imu.gyro.z - offsets[2])
-
-    return {'ax': ax, 'ay': ay, 'az': az, 'pitch': pitch, 'roll': roll, 'yaw': yaw}
+def get_best_callibration(times=100):
+  i = 0
+  x = 0
+  y = 0
+  z = 0
+  while i < times:
+    offsets = gyro_calibration()
+    x += offsets[0]
+    y += offsets[1]
+    z += offsets[2]
+    i += 1
+    if i == times:
+      print(x/times, y/times, z/times)
