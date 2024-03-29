@@ -112,7 +112,7 @@ def core0_thread():
 
     # wait 5 seconds for event1, ryujinx do not send event1
     if eventType1Addr == 0 and eventType2Addr != 0:
-      now = time.time()
+      now = time()
       if now - wait < 5:
         continue
 

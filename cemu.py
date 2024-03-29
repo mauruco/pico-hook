@@ -16,8 +16,9 @@ class CEMU:
                   crc >>= 1
       return crc ^ 0xffffffff
 
-  def make_info_response(self, slot):
+  def make_info_response(self, serverId, activeSlot, slot):
       output = bytearray(32)  # 0x0 as default
+      # shared between info and data ->
       # Magic server string (DSUS)
       output[0] = 0x44
       output[1] = 0x53
@@ -31,31 +32,32 @@ class CEMU:
       # Zero out CRC32 field
       ustruct.pack_into('<L', output, 8, 0)
       # Set server id to some value (0)
-      ustruct.pack_into('<L', output, 12, 0)
+      ustruct.pack_into('<L', output, 12, serverId)
       # Event type, controller information (0x00100001)
       ustruct.pack_into('<L', output, 16, 0x00100001)
 
       # Slot of the device we are reporting about (i)
-      output[20] = slot
-      output[21] = 0x00  # Slot state, not connected (0)
-      output[22] = 0x00  # Device model, not applicable (0)
-      output[23] = 0x00  # Connection type, not applicable (0)
-      # MAC address of device, not applicable (0x000000000000)
-      for i in range(24, 30):
-          output[i] = 0x00
+      output[20] = activeSlot
+      # output[21] = 0x00  # Slot state, not connected (0)
+      # output[22] = 0x00  # Device model, not applicable (0)
+      # output[23] = 0x00  # Connection type, not applicable (0)
+      # 24, 29 -> MAC address of device, not applicable (0x000000000000)
       # Battery status, not applicable (0)
-      output[30] = 0x00
-      output[31] = 0x00  # Termination byte
+      # output[30] = 0x00
 
-      # Controller 0 is the only active controller
-      if slot == 0:
-          output[21] = 0x02  # Slot state, connected (2)
-          output[22] = 0x02  # Device model, full gyro aka DS4 (2)
-          output[23] = 0x02  # Connection type, bluetooth (2). (May be either USB (1) or Bluetooth (2))
-          # MAC address of device (0x000000000001)
-          output[24] = 0x01
-          # Battery status, full (5)
-          output[30] = 0x05
+      # # Controller 0 is the only active controller
+      # if slot == activeSlot:
+      output[21] = 0x02  # Slot state, connected (2)
+      output[22] = 0x02  # Device model, full gyro aka DS4 (2)
+      output[23] = 0x02  # Connection type, bluetooth (2). (May be either USB (1) or Bluetooth (2))
+      # MAC address of device (0x000000000001)
+      output[24] = 0x01
+      # Battery status, full (5)
+      output[30] = 0x05
+      ## <- shared between info and data
+      
+      # 31 Termination byte
+      # output[31] = 0x00
 
       # Calculate CRC32 and write it into the output
       # Note: You'll need to implement or import a function to calculate CRC32
@@ -63,8 +65,9 @@ class CEMU:
       ustruct.pack_into('<L', output, 8, crc)
       return output
 
-  def make_data_response(self, ax, ay, az, pitch, roll, yaw):
+  def make_data_response(self, serverId, activeSlot, ax, ay, az, pitch, roll, yaw):
       output = bytearray(100)  # already 0x0 as default
+      ## shared between info and data ->
       # Magic server string (DSUS)
       output[0:4] = b'DSUS'
       # Protocol version (1001)
@@ -74,16 +77,30 @@ class CEMU:
       # Zero out CRC32 field
       ustruct.pack_into('<L', output, 8, 0)
       # Set server id to some value (0)
-      ustruct.pack_into('<L', output, 12, 0)
+      ustruct.pack_into('<L', output, 12, serverId)
       # Event type, controller data (0x00100002)
       ustruct.pack_into('<L', output, 16, 0x00100002)
-      # --
-      output[20:32] = b'\x00\x02\x02\x02\x01\x00\x00\x00\x00\x00\x05\x01'
+      # active slot
+      output[20] = activeSlot
+      # slot state
+      output[21] = 0x02
+      # device model
+      output[22] = 0x02
+      # connection type
+      output[23] = 0x02
+      # mac address 24-29
+      output[24] = serverId
+      # battery status
+      output[30] = 0x05
+      ## <- shared between info and data
+
+      # device active
+      output[31] = 0x01
       # Copy from packetCount to packet array 
       ustruct.pack_into('<L', output, 32, self.packetNumber)
       self.packetNumber += 1
       # We don't care about button, joystick and touchpad data, so we just their bytes to zero.
-      output[36:68] = b'\x00' * 32
+      # output[36:68] = b'\x00' * 32
       # timestamp
       # micro time passed
       ustruct.pack_into('<Q', output, 68, utime.ticks_us() & 0xFFFFFFFFFFFF)
