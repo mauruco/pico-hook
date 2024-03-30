@@ -46,7 +46,7 @@ from time import sleep
 # Yaw: Rotation around the Z-axis. + is counterclockwise, - is clockwise.
 
 class MPU6050:
-  def __init__(self, mpuAddr, i2c):
+  def __init__(self, mpuAddr, i2c, gyro_sensitive_range = 2, accel_sensitive_range = 2):
     self.mpuAddr = mpuAddr
     self.i2c = i2c
     ## wake device
@@ -77,9 +77,9 @@ class MPU6050:
     self.set_low_pass_filter(5)
 
     ## sensitive range
-    self.gyro_sensitive_range = 2
+    self.gyro_sensitive_range = gyro_sensitive_range
     self.gyro_sensitive = [131, 65.5, 32.8, 16.4]
-    self.accel_sensitive_range = 2
+    self.accel_sensitive_range = accel_sensitive_range
     self.accel_sensitive = [16384, 8192, 4096, 2048]
     self.set_sensitive_range(self.gyro_sensitive_range, self.accel_sensitive_range)
 
