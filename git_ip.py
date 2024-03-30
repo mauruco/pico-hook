@@ -16,9 +16,9 @@ if not file_exists('config.json'):
   print('config.json not found')
   exit()
 
-wifiConfig = {}
+config = {}
 with open('config.json', 'r') as f:
-  wifiConfig = loads(f.read())
+  config = loads(f.read())
 
 # print ip
-ip = connect(wifiConfig['wifiSsid'], wifiConfig['wifiPass'])
+ip = connect(config['wifiSsid'], config['wifiPass'])

@@ -1,16 +1,13 @@
 from _thread import start_new_thread
 from os import stat
 from sys import exit
-from machine import Pin, Timer
+from machine import Pin
 from rp2 import bootsel_button
 from json import loads
 from utime import sleep
 
 led = Pin(25, Pin.OUT)
 led.off()
-ttimer = Timer(-1)
-# slow blink indicates startup
-ttimer.init(period=500, mode=Timer.PERIODIC, callback=lambda t:led.toggle())
 
 # wait for calibration input
 sleep(3)
@@ -26,14 +23,10 @@ if bootsel_button():
   mpu6050 = MPU6050(0x68, i2c)
 
   # calibration
-  ttimer.deinit()
   offsets = CALIBRATE(mpu6050).start()
 
   # very fast blink indicates calibration failed
   if offsets == False:
-    print('Calibration Failed')
-    ttimer.deinit()
-    ttimer.init(period=100, mode=Timer.PERIODIC, callback=lambda t:led.toggle())
     exit()
 
   # save offsets
@@ -43,7 +36,6 @@ if bootsel_button():
   reset()
 
 # startup done
-ttimer.deinit()
 led.on()
 
 # helper
@@ -100,14 +92,14 @@ def core0_thread():
     config = loads(f.read())
 
   # wifi
-  connect(config['wifiSsid'], config['wifiPass'])
+  _, mac = connect(config['wifiSsid'], config['wifiPass'])
 
   # init CEMU
   cemu = CEMU()
 
   # server
   server = UDPSERVER()
-  server.listen(config['serverId'], config['activeSlot'], cemu.make_info_response, cemu.make_data_response, get_data)
+  server.listen(mac, config['serverId'], config['activeSlot'], cemu.make_info_response, cemu.make_data_response, get_data)
 
 # Start the core1 thread
 start_new_thread(core1_thread, ())
