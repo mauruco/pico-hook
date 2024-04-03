@@ -92,17 +92,3 @@ class CALIBRATE:
       self.timer.init(period=100, mode=Timer.PERIODIC, callback=lambda t:self.led.toggle())
       print('Calibration Failed')
       return False
-    
-from mpu6050 import MPU6050
-from machine import I2C, Pin
-# init mpu
-i2c = I2C(1, sda=Pin(2), scl=Pin(3), freq=400000)
-mpu6050 = MPU6050(0x68, i2c)
-
-# CALIBRATE(mpu6050).start()
-
-while True:
-  offx, offy, offz = 0.05833888, -0.01418775, 0.03186357
-  ax, ay, az = mpu6050.read_accel_raw()
-
-  print('Accel X: ', az - (offz))

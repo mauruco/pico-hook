@@ -1,6 +1,6 @@
 from _thread import start_new_thread
 from sys import exit
-from machine import Pin, reset
+from machine import Pin, Timer, reset
 from rp2 import bootsel_button
 from utime import sleep
 from config import CONFIG
@@ -13,8 +13,18 @@ led.off()
 # wait for calibration input
 sleep(3)
 
+
 # enter app mode
 if bootsel_button():
+  def lebBlink():
+    led.on()
+    sleep(0.1)
+    led.off()
+    sleep(0.1)
+    
+  timer = Timer(-1)
+  # blink indicates app mode
+  timer.init(period=500, mode=Timer.PERIODIC, callback=lambda t:lebBlink())
   ACCESSPOINT().app_mode('pico-hook', 'pico-hook')
   reset()
 

@@ -1,0 +1,16 @@
+{
+  "wifiSsid": "pico-hook",
+  "wifiPassword": "pico-hook",
+  "wifiIp": "0.0.0.0",
+  "forceCalibration": 0,
+  "serverId": 1,
+  "activeSlot": 0,
+  "accelSensitiveRange": 2,
+  "gyroSensitiveRange": 2,
+  "ax": 0,
+  "ay": 0,
+  "az": 0,
+  "gx": 0,
+  "gy": 0,
+  "gz": 0
+}

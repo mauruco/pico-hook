@@ -1,0 +1,71 @@
+<html>
+  <head>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  </head>
+  <body>
+  <h1>PICO-HOOK</h1>
+  <form method="get">
+    <h2>Last IP: {wifiIp}</h2><br>
+    <p>
+      <h2>Connect to a WiFi Network</h2>
+      <label for="wifiSsid">SSID:</label><br>
+      <input type="text" id="wifiSsid" name="wifiSsid" value="wifiSSid" required><br>
+      <label for="wifiPassword">PASS:</label><br>
+      <input type="text" id="wifiPassword" name="wifiPassword" value="wifiPassword" required><br>
+      <br>
+    </p>
+    <p>
+      <h2>Accelerometer and Gyroscope</h2>
+      <label for="accelsensitiverange">Accel Sensitive Range:</label><br>
+      <input type="number" id="accelSensitiveRange" name="accelSensitiveRange" min="0" max="3" value="2"><br>
+      <ul>
+        <li>0: +/- 2g 16384 LSB/g</li>
+        <li>1: +/- 4g 8192 LSB/g</li>
+        <li>2: +/- 8g 4096 LSB/g (DEFAULT)</li>
+        <li>3: +/- 16g 2048 LSB/g</li>
+      </ul>
+      <br>
+      <label for="gyrosensitiverange">Gyro Sensitive Range:</label><br>
+      <input type="number" id="gyroSensitiveRange" name="gyroSensitiveRange" min="0" max="3" value="1"><br>
+      <ul>
+        <li>0: +/- 250 °/s 131 LSB/°/s</li>
+        <li>1: +/- 500 °/s 65.5 LSB/°/s</li>
+        <li>2: +/- 1000 °/s 32.8 LSB/°/s (DEFAULT)</li>
+        <li>3: +/- 2000 °/s 16.4 LSB/°/s</li>
+      </ul>
+      <br>
+      <br>
+    </p>
+    <p>
+      <h2>Hook Configuration</h2>
+      <label for="serverid">Server ID:</label><br>
+      <input type="number" id="serverId" name="serverId" min="1" max="255" value="1"><br>
+      <label for="activeslot">Active Slot:</label><br>
+      <input type="number" id="activeSlot" name="activeSlot" min="0" max="3" value="0"><br>
+      <br>
+    </p>
+    <p>
+      <h2>DANGER: Force Calibration</h2>
+      <label for="calibrate">Do Calibration:</label><br>
+      <input type="checkbox" id="forceCalibration" name="forceCalibration" checked="checked"><br>
+      <br>
+    </p>
+    <button type="submit" id="submit">Submit</button><br>
+    <script>
+      const form = document.querySelector('form');
+      form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        wifiSSid = btoa(document.getElementById("wifiSsid").value);
+        wifiPassword = btoa(document.getElementById("wifiPassword").value);
+        accelSensitiveRange = document.getElementById("accelSensitiveRange").value;
+        gyroSensitiveRange = document.getElementById("gyroSensitiveRange").value;
+        serverId = document.getElementById("serverId").value;
+        activeSlot = document.getElementById("activeSlot").value;
+        forceCalibration = document.getElementById("forceCalibration").checked;
+        console.log(`http://192.168.4.1?data=${wifiSSid},${wifiPassword},${accelSensitiveRange},${gyroSensitiveRange},${serverId},${activeSlot},${forceCalibration}`)
+        fetch(`http://192.168.4.1?data=${wifiSSid},${wifiPassword},${accelSensitiveRange},${gyroSensitiveRange},${serverId},${activeSlot},${forceCalibration}`)
+        .catch(error => console.error('Error:', error));
+      });
+    </script>
+  </body>
+</html>

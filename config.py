@@ -45,7 +45,7 @@ class CONFIG:
       return False
   
   def get(self, key):
-    return self.config[key]
+    return self.config.get(key, 'none')
   
   def set(self, key, value):
     self.config[key] = value
